@@ -45,7 +45,7 @@ func TestHandler_LoginUser(t *testing.T) {
 			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
 				rr := httptest.NewRecorder()
 				c, _ := gin.CreateTestContext(rr)
-				httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com:8080", strings.NewReader(`"email":"jee@gmail.com"}`))
+				httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com:8080", strings.NewReader(`"email":"sam@gmail.com"}`))
 				ctx := httpRequest.Context()
 				ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
 				ctx = context.WithValue(ctx, auth.Key, jwt.RegisteredClaims{})

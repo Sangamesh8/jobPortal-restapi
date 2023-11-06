@@ -98,53 +98,43 @@ func TestService_AddJobDetails(t *testing.T) {
 		mockRepoResponse func() (models.Jobs, error)
 	}{
 		{
-			name: "error from repository",
-			// s:    &Service{},
+			name: "error case",
 			args: args{
 				ctx:     context.Background(),
-				jobData: models.Jobs{
-					// Provide necessary data for jobData
-				},
-				CompanyID: 1,
+				jobData: models.Jobs{},
 			},
 			want:    models.Jobs{},
 			wantErr: true,
 			mockRepoResponse: func() (models.Jobs, error) {
-				return models.Jobs{}, errors.New("error from repository")
+				return models.Jobs{}, errors.New("test error")
 			},
 		},
 		{
-			name: "success",
-			//s:    &Service{},
+			name: "success case",
 			args: args{
-				ctx:     context.Background(),
+				ctx: context.Background(),
 				jobData: models.Jobs{
-					// Provide necessary data for jobData
+					Name:  "Go Developer",
+					Salary: "500000",
+					CompanyID:    1,
 				},
 				CompanyID: 1,
 			},
 			want: models.Jobs{
-				// Provide the expected result of the AddJobDetails operation
+				Name:  "Go Developer",
+				Salary: "500000",
+				CompanyID:    1,
 			},
+
 			wantErr: false,
+
 			mockRepoResponse: func() (models.Jobs, error) {
 				return models.Jobs{
-					// Provide the expected result from the repository
+					Name:  "Go Developerr",
+					Salary: "500000",
+					CompanyID:    1,
 				}, nil
 			},
-		},
-		{
-			name: "error from repository",
-			// s:    &Service{},
-			args: args{
-				ctx:     context.Background(),
-				jobData: models.Jobs{
-					// Provide necessary data for jobData
-				},
-				CompanyID: 1,
-			},
-			want:    models.Jobs{},
-			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
