@@ -41,7 +41,7 @@ func TestHandler_LoginUser(t *testing.T) {
 			expectedResponse:   `{"error":"Internal Server Error"}`,
 		},
 		{
-			name: "Success while logginmg user",
+			name: "Failure while user login",
 			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
 				rr := httptest.NewRecorder()
 				c, _ := gin.CreateTestContext(rr)

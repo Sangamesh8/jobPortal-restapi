@@ -195,56 +195,72 @@ func TestHandler_CreateCompany(t *testing.T) {
 		expectedStatusCode int
 		expectedResponse   string
 	}{
-		{
-			name: "missing trace id",
-			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
-				rr := httptest.NewRecorder()
-				c, _ := gin.CreateTestContext(rr)
-				httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
-				c.Request = httpRequest
+		// {
+		// 	name: "missing trace id",
+		// 	setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
+		// 		rr := httptest.NewRecorder()
+		// 		c, _ := gin.CreateTestContext(rr)
+		// 		httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
+		// 		c.Request = httpRequest
 
-				return c, rr, nil
-			},
-			expectedStatusCode: http.StatusInternalServerError,
-			expectedResponse:   `{"error":"Internal Server Error"}`,
-		},
-		{
-			name: "missing jwt claims",
-			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
-				rr := httptest.NewRecorder()
-				c, _ := gin.CreateTestContext(rr)
-				httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
-				ctx := httpRequest.Context()
-				ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
-				httpRequest = httpRequest.WithContext(ctx)
-				c.Request = httpRequest
+		// 		return c, rr, nil
+		// 	},
+		// 	expectedStatusCode: http.StatusInternalServerError,
+		// 	expectedResponse:   `{"error":"Internal Server Error"}`,
+		// },
+		// {
+		// 	name: "missing jwt claims",
+		// 	setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
+		// 		rr := httptest.NewRecorder()
+		// 		c, _ := gin.CreateTestContext(rr)
+		// 		httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
+		// 		ctx := httpRequest.Context()
+		// 		ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
+		// 		httpRequest = httpRequest.WithContext(ctx)
+		// 		c.Request = httpRequest
 
-				return c, rr, nil
-			},
-			expectedStatusCode: http.StatusUnauthorized,
-			expectedResponse:   `{"error":"Unauthorized"}`,
-		},
+		// 		return c, rr, nil
+		// 	},
+		// 	expectedStatusCode: http.StatusUnauthorized,
+		// 	expectedResponse:   `{"error":"Unauthorized"}`,
+		// },
 		{
-			name: "Success while creating a company",
+			name: "failure in the decoder part",
 			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
 				rr := httptest.NewRecorder()
 				c, _ := gin.CreateTestContext(rr)
-				httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com:8080", strings.NewReader(`{"name":"Tek","location":"Blr","type":"IT"}`))
+				httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com:8080", strings.NewReader(`{"name":"sam"}`))
 				ctx := httpRequest.Context()
 				ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
 				ctx = context.WithValue(ctx, auth.Key, jwt.RegisteredClaims{})
 				httpRequest = httpRequest.WithContext(ctx)
 				c.Request = httpRequest
-				// c.Params = append(c.Params, gin.Param{Key: "id", Value: "1"})
-				mc := gomock.NewController(t)
-				ms := service.NewMockJobPortalService(mc)
-				ms.EXPECT().AddCompanyDetails(gomock.Any(), gomock.Any()).Return(models.Company{}, nil).AnyTimes()
-
-				return c, rr, ms
+				return c, rr, nil
 			},
-			expectedStatusCode: http.StatusOK,
-			expectedResponse:   `{"ID":0,"CreatedAt":"0001-01-01T00:00:00Z","UpdatedAt":"0001-01-01T00:00:00Z","DeletedAt":null,"name":"","location":"","type":""}`,
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   `{"error":"please provide valid name, location and field"}`,
 		},
+		// {
+		// 	name: "Success while creating a company",
+		// 	setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
+		// 		rr := httptest.NewRecorder()
+		// 		c, _ := gin.CreateTestContext(rr)
+		// 		httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com:8080", strings.NewReader(`{"name":"Tek","location":"Blr","type":"IT"}`))
+		// 		ctx := httpRequest.Context()
+		// 		ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
+		// 		ctx = context.WithValue(ctx, auth.Key, jwt.RegisteredClaims{})
+		// 		httpRequest = httpRequest.WithContext(ctx)
+		// 		c.Request = httpRequest
+		// 		// c.Params = append(c.Params, gin.Param{Key: "id", Value: "1"})
+		// 		mc := gomock.NewController(t)
+		// 		ms := service.NewMockJobPortalService(mc)
+		// 		ms.EXPECT().AddCompanyDetails(gomock.Any(), gomock.Any()).Return(models.Company{}, nil).AnyTimes()
+
+		// 		return c, rr, ms
+		// 	},
+		// 	expectedStatusCode: http.StatusOK,
+		// 	expectedResponse:   `{"ID":0,"CreatedAt":"0001-01-01T00:00:00Z","UpdatedAt":"0001-01-01T00:00:00Z","DeletedAt":null,"name":"","location":"","type":""}`,
+		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -13,6 +13,7 @@ type Service struct {
 	UserRepo repository.UserRepo
 	auth     auth.Authentication
 }
+
 //go:generate mockgen -source=service.go -destination=service_mock.go -package=service
 type JobPortalService interface {
 	UserSignup(ctx context.Context, userData models.NewUser) (models.User, error)
@@ -26,6 +27,7 @@ type JobPortalService interface {
 	AddJobDetails(ctx context.Context, jobData models.Jobs, cid uint64) (models.Jobs, error)
 	ViewAllJobs(ctx context.Context) ([]models.Jobs, error)
 	ViewJobById(ctx context.Context, jid uint64) (models.Jobs, error)
+	// ApplicationsForJob(ctx context.Context, companyData models.Company) (models.Company, error)
 }
 
 func NewService(userRepo repository.UserRepo, a auth.Authentication) (JobPortalService, error) {

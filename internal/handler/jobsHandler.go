@@ -165,3 +165,55 @@ func (h *Handler) CreateJobs(c *gin.Context) {
 	c.JSON(http.StatusOK, jobData)
 
 }
+
+// func (h *Handler) JobApplication(c *gin.Context) {
+// 	ctx := c.Request.Context()
+// 	traceid, ok := ctx.Value(middleware.TraceIDKey).(string)
+// 	if !ok {
+// 		log.Error().Msg("traceid missing from context")
+// 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+// 			"error": http.StatusText(http.StatusInternalServerError),
+// 		})
+// 		return
+// 	}
+
+// 	_, ok = ctx.Value(auth.Key).(jwt.RegisteredClaims)
+// 	if !ok {
+// 		log.Error().Str("Trace Id", traceid).Msg("login first")
+// 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": http.StatusText(http.StatusUnauthorized)})
+// 		return
+// 	}
+
+// 	var companyData models.Company
+
+// 	err := json.NewDecoder(c.Request.Body).Decode(&companyData)
+// 	if err != nil {
+// 		log.Error().Err(err).Str("trace id", traceid)
+// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+// 			"error": "please provide valid name, location and field",
+// 		})
+// 		return
+// 	}
+
+// 	validate := validator.New()
+// 	err = validate.Struct(companyData)
+// 	if err != nil {
+// 		log.Error().Err(err).Str("trace id", traceid)
+// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+// 			"error": "please provide valid name, location and field",
+// 		})
+// 		return
+// 	}
+
+// 	applicationData, err = h.service.ApplicationsForJob(ctx, companyData)
+// 	if err != nil {
+// 		log.Error().Err(err).Str("trace id", traceid)
+// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+// 			"error": err.Error(),
+// 		})
+// 		return
+// 	}
+
+// 	c.JSON(http.StatusOK, applicationData)
+
+// }

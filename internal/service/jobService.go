@@ -40,3 +40,10 @@ func (s *Service) ViewJobByCompanyID(ctx context.Context, cid uint64) ([]models.
 	}
 	return jobData, nil
 }
+// func (s *Service) ApplicationsForJob(ctx context.Context, applicationData models.Jobs) ([]list, error) {
+// 	companyData, err := s.UserRepo.CreateCompany(ctx, applicationData)
+// 	if err != nil {
+// 		return models.Company{}, err
+// 	}
+// 	return companyData, nil
+// }
