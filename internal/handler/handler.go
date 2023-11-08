@@ -40,7 +40,7 @@ func Api(a auth.Authentication, ser service.JobPortalService) *gin.Engine {
 	r.POST("add/:cid", m.Authenticate(h.CreateJobs))
 	r.GET("/viewjjj/all", m.Authenticate(h.ViewAllJobs))
 	r.GET("/view/:id", m.Authenticate(h.ViewJobByID))
-	// r.POST("apply", m.Authenticate(h.JobApplication))
+	r.POST("/api/processapplication", m.Authenticate(h.ProcessJobApplication))
 	return r
 }
 

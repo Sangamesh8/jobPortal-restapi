@@ -9,6 +9,7 @@ type Company struct {
 	Type     string `json:"type" validate:"required"`
 }
 type Jobs struct {
+	//Original Jobs struct
 	gorm.Model
 	Company         Company         `json:"-" gorm:"ForeignKey:company_id"`
 	CompanyID       uint            `json:"company_id"`
@@ -16,7 +17,7 @@ type Jobs struct {
 	MinNoticePeriod string          `json:"min_notice_period"`
 	MaxNoticePeriod string          `json:"max_notice_period"`
 	Budget          string          `json:"budget"`
-	JobLocation     []JobLocation   `gorm:"many2many:job_location;"`
+	JobLocation     []JobLocation   `gorm:"many2many:job_location;"` //gorm
 	Technology      []Technology    `gorm:"many2many:technology;"`
 	WorkMode        []WorkMode      `gorm:"many2many:workmode;"`
 	JobDescription  string          `json : "jobdescription"`
@@ -26,40 +27,43 @@ type Jobs struct {
 }
 
 type CreateJobs struct {
-	CompanyID       uint            `json:"company_id"`
-	Name            string          `json:"title"`
-	MinNoticePeriod string          `json:"min_notice_period"`
-	MaxNoticePeriod string          `json:"max_notice_period"`
-	Budget          string          `json:"budget"`
-	JobLocation     []JobLocation   `json : "job_location;"`
-	Technology      []Technology    `json : "technology;"`
-	WorkMode        []WorkMode      `json : "workmode;"`
-	JobDescription  string          `json : "jobdescription"`
-	Qualification   []Qualification `json : "qualification;"`
-	Shift           []Shift         `json : "shift;"`
-	JobType         []JobType       `json : "jobtype;"`
+	//CreateJobs struct need to pass it to JObs for storing it into database
+	CompanyID       uint   `json:"company_id"`
+	Name            string `json:"title"`
+	MinNoticePeriod string `json:"min_notice_period"`
+	MaxNoticePeriod string `json:"max_notice_period"`
+	Budget          string `json:"budget"`
+	JobLocation     []uint `json:"job_location"`
+	Technology      []uint `json : "technology"`
+	WorkMode        []uint `json : "workmode"`
+	JobDescription  string `json : "jobdescription"`
+	Qualification   []uint `json : "qualification"`
+	Shift           []uint `json : "shift"`
+	JobType         []uint `json : "jobtype"`
 }
 
 type JobApplicant struct {
-	CompanyID       uint            `json:"company_id"`
-	Name            string          `json:"title"`
-	MinNoticePeriod string          `json:"min_notice_period"`
-	MaxNoticePeriod string          `json:"max_notice_period"`
-	Budget          string          `json:"budget"`
-	JobLocation     []JobLocation   `json : "job_location;"`
-	Technology      []Technology    `json : "technology;"`
-	WorkMode        []WorkMode      `json : "workmode;"`
-	JobDescription  string          `json : "jobdescription"`
-	Qualification   []Qualification `json : "qualification;"`
-	Shift           []Shift         `json : "shift;"`
-	JobType         []JobType       `json : "jobtype;"`
+	//json body struct for applicants to filter out the
+	CompanyID       uint   `json:"company_id"`
+	Name            string `json:"title"`
+	MinNoticePeriod string `json:"min_notice_period"`
+	MaxNoticePeriod string `json:"max_notice_period"`
+	Budget          string `json:"budget"`
+	JobLocation     []uint `json : "job_location;"`
+	Technology      []uint `json : "technology;"`
+	WorkMode        []uint `json : "workmode;"`
+	JobDescription  string `json : "jobdescription"`
+	Qualification   []uint `json : "qualification;"`
+	Shift           []uint `json : "shift;"`
+	JobType         []uint `json : "jobtype;"`
 }
-
+type ResponseForJobs struct {
+	ID uint `json:"id"`
+}
 type JobLocation struct {
 	gorm.Model
 	Name string `json:"name" gorm:"unique"`
 }
-
 type Technology struct {
 	gorm.Model
 	Name string `json:"name" gorm:"unique"`

@@ -19,13 +19,15 @@ func (r *Repo) ViewJobDetailsByJobId(ctx context.Context, jid uint64) (models.Jo
 	return jobData, nil
 }
 
-func (r *Repo) CreateJob(ctx context.Context, jobData models.Jobs) (models.Jobs, error) {
+func (r *Repo) CreateJob(ctx context.Context, jobData models.Jobs) (models.ResponseForJobs, error) {
 	result := r.DB.Create(&jobData)
 	if result.Error != nil {
 		log.Info().Err(result.Error).Send()
-		return models.Jobs{}, errors.New("could not create the jobs")
+		return models.ResponseForJobs{}, errors.New("could not create the jobs")
 	}
-	return jobData, nil
+	return models.ResponseForJobs{
+		ID: jobData.ID,
+	}, nil
 }
 
 func (r *Repo) FindAllJobs(ctx context.Context) ([]models.Jobs, error) {
@@ -48,3 +50,13 @@ func (r *Repo) FindJobByCompanyID(ctx context.Context, CompanyID uint64) ([]mode
 	}
 	return jobData, nil
 }
+
+// func(r *Repo) JobProcessData(id int)(models.Jobs,error){
+// 	var jobData models.Jobs
+// 	result:=r.DB.Where("id = ?",id).Find(&jobData)
+// 	if result.Error != nil {
+// 		log.Info().Err(result.Error).Send()
+// 		return models.Jobs{},errors.New("couldn't process the job data")
+// 	}
+// 	return jobData,nil
+// }

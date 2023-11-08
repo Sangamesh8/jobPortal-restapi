@@ -24,10 +24,11 @@ type JobPortalService interface {
 	ViewCompanyDetails(ctx context.Context, cid uint64) (models.Company, error)
 	ViewJobByCompanyID(ctx context.Context, cid uint64) ([]models.Jobs, error)
 
-	AddJobDetails(ctx context.Context, jobData models.Jobs, cid uint64) (models.Jobs, error)
+	AddJobDetails(ctx context.Context, jobData models.CreateJobs, CompanyID uint64) (models.ResponseForJobs, error)
 	ViewAllJobs(ctx context.Context) ([]models.Jobs, error)
 	ViewJobById(ctx context.Context, jid uint64) (models.Jobs, error)
-	// ApplicationsForJob(ctx context.Context, companyData models.Company) (models.Company, error)
+
+	ProcessJobApplication(ctx context.Context, jobData []models.JobApplicant) ([]models.JobApplicant, error)
 }
 
 func NewService(userRepo repository.UserRepo, a auth.Authentication) (JobPortalService, error) {
