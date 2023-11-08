@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
 	"job-portal-api/internal/models"
+	"sync"
 
 	"gorm.io/gorm"
 )
@@ -99,8 +101,50 @@ func (s *Service) ViewJobByCompanyID(ctx context.Context, cid uint64) ([]models.
 }
 
 func ProcessJobApplication(ctx context.Context, jobData []models.JobApplicant) ([]models.JobApplicant, error) {
+	var ProccessedJobData []models.JobApplicant
+	jobDetails, err := s.UserRepo.ViewJobDetailsByJobId(ctx, uint64)
+
+	if err != nil {
+		return nil, errors.New("Failed to fetch job details from database")
+	}
+
+	ch := make(chan models.JobApplicant)
+	wg := new(sync.WaitGroup)
+
+	for _, v := range jobData {
+		wg.Add(1)
+		go func(v models.JobApplicant) {
+			defer wg.Done()
+			bool, application := applicationFilter(v, jobDetails)
+			if bool {
+				ch <- application
+			}
+		}(v)
+	}
+	go func() {
+		wg.wait()
+		close(ch)
+	}()
+	for data := range ch {
+		ProccessedJobData = append(ProccessedJobData, data)
+	}
+	return ProccessedJobData, nil
 }
 
-func (s *Service) compareAndCheck(jobData models.JobApplicant) (bool, models.JobApplicant, error) {
+func (s *Service) compareAndCheck(validateApplication models.JobApplicant, jobDetails models.JobApplicant) (bool, models.JobApplicant) {
 
+	count := 0
+
+	for _, v1 := range v.Jobs.JobLocation {
+		count = 0
+		for _, v2 := range validateApplication.JobDescription {
+			if v1 == v2.ID {
+				count++
+			}
+		}
+
+	}
+	if count == 0 {
+		return false, models.JobApplicant{}
+	}
 }
