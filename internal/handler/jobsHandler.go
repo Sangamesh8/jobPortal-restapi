@@ -185,7 +185,7 @@ func (h *Handler) ProcessJobApplication(c *gin.Context) {
 		return
 	}
 
-	var jobDetails []models.JobApplicant
+	var jobDetails []models.JobApplicantResponse
 
 	err := json.NewDecoder(c.Request.Body).Decode(&jobDetails)
 	if err != nil {

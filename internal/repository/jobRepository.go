@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"job-portal-api/internal/models"
 
@@ -11,11 +12,18 @@ import (
 
 func (r *Repo) ViewJobDetailsByJobId(ctx context.Context, jid uint64) (models.Jobs, error) {
 	var jobData models.Jobs
-	result := r.DB.Where("id = ?", jid).Find(&jobData)
+	result := r.DB.Preload("JobLocation").
+		Preload("Technology").
+		Preload("WorkMode").
+		Preload("Qualification").
+		Preload("Shift").
+		Preload("JobType").
+		Where("id = ?", jid).Find(&jobData)
 	if result.Error != nil {
 		log.Info().Err(result.Error).Send()
 		return models.Jobs{}, errors.New("could not create the jobs")
 	}
+	fmt.Println("Body data -----", jobData)
 	return jobData, nil
 }
 

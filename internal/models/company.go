@@ -44,18 +44,22 @@ type CreateJobs struct {
 
 type JobApplicant struct {
 	//json body struct for applicants to filter out the
-	CompanyID       uint   `json:"company_id"`
-	Name            string `json:"title"`
-	MinNoticePeriod string `json:"min_notice_period"`
-	MaxNoticePeriod string `json:"max_notice_period"`
-	Budget          string `json:"budget"`
-	JobLocation     []uint `json : "job_location;"`
-	Technology      []uint `json : "technology;"`
-	WorkMode        []uint `json : "workmode;"`
-	JobDescription  string `json : "jobdescription"`
-	Qualification   []uint `json : "qualification;"`
-	Shift           []uint `json : "shift;"`
-	JobType         []uint `json : "jobtype;"`
+	CompanyID      uint   `json:"company_id"`
+	Name           string `json:"title"`
+	NoticePeriod   string `json:"noticePeriod"`
+	Budget         string `json:"budget"`
+	JobLocation    []uint `json:"job_location"`
+	Technology     []uint `json:"technology"`
+	WorkMode       []uint `json:"workmode"`
+	JobDescription string `json:"jobdescription"`
+	Qualification  []uint `json:"qualification"`
+	Shift          []uint `json:"shift"`
+	JobType        []uint `json:"jobtype"`
+}
+type JobApplicantResponse struct {
+	Name  string       `json:"name"`
+	JobID uint         `json:"jobId"`
+	Jobs  JobApplicant `json:"jobApplication"`
 }
 type ResponseForJobs struct {
 	ID uint `json:"id"`

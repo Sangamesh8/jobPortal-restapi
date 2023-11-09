@@ -28,7 +28,7 @@ type JobPortalService interface {
 	ViewAllJobs(ctx context.Context) ([]models.Jobs, error)
 	ViewJobById(ctx context.Context, jid uint64) (models.Jobs, error)
 
-	ProcessJobApplication(ctx context.Context, jobData []models.JobApplicant) ([]models.JobApplicant, error)
+	ProcessJobApplication(ctx context.Context, jobData []models.JobApplicantResponse) ([]models.JobApplicantResponse, error)
 }
 
 func NewService(userRepo repository.UserRepo, a auth.Authentication) (JobPortalService, error) {

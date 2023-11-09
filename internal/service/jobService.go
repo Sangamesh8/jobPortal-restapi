@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"job-portal-api/internal/models"
+	"strconv"
 	"sync"
 
 	"gorm.io/gorm"
@@ -100,29 +102,30 @@ func (s *Service) ViewJobByCompanyID(ctx context.Context, cid uint64) ([]models.
 	return jobData, nil
 }
 
-func ProcessJobApplication(ctx context.Context, jobData []models.JobApplicant) ([]models.JobApplicant, error) {
-	var ProccessedJobData []models.JobApplicant
-	jobDetails, err := s.UserRepo.ViewJobDetailsByJobId(ctx, uint64)
+func (s *Service) ProcessJobApplication(ctx context.Context, jobData []models.JobApplicantResponse) ([]models.JobApplicantResponse, error) {
+	var ProccessedJobData []models.JobApplicantResponse
+	jobDetails, err := s.UserRepo.ViewJobDetailsByJobId(ctx, 15)
+	fmt.Println("hello", jobDetails.JobLocation)
 
 	if err != nil {
-		return nil, errors.New("Failed to fetch job details from database")
+		return nil, errors.New("failed to fetch job details from database")
 	}
 
-	ch := make(chan models.JobApplicant)
+	ch := make(chan models.JobApplicantResponse)
 	wg := new(sync.WaitGroup)
 
 	for _, v := range jobData {
 		wg.Add(1)
-		go func(v models.JobApplicant) {
+		go func(v models.JobApplicantResponse) {
 			defer wg.Done()
-			bool, application := applicationFilter(v, jobDetails)
-			if bool {
-				ch <- application
+			b, _ := applicationFilter(v, jobDetails)
+			if b {
+				ch <- v
 			}
 		}(v)
 	}
 	go func() {
-		wg.wait()
+		wg.Wait()
 		close(ch)
 	}()
 	for data := range ch {
@@ -131,20 +134,144 @@ func ProcessJobApplication(ctx context.Context, jobData []models.JobApplicant) (
 	return ProccessedJobData, nil
 }
 
-func (s *Service) compareAndCheck(validateApplication models.JobApplicant, jobDetails models.JobApplicant) (bool, models.JobApplicant) {
+func applicationFilter(validateApplication models.JobApplicantResponse, jobDetails models.Jobs) (bool, models.JobApplicantResponse) {
+
+	applicantBudget, err := strconv.Atoi(validateApplication.Jobs.Budget)
+	if err != nil {
+		panic("error while conversion budget data from applicants")
+	}
+	compBudget, err := strconv.Atoi(jobDetails.Budget)
+	if err != nil {
+		panic("error while conversion budget data from posting")
+	}
+	if applicantBudget > compBudget {
+		fmt.Println("failed in budget")
+		return false, models.JobApplicantResponse{}
+
+	}
+	compMinNoticePeriod, err := strconv.Atoi(jobDetails.MinNoticePeriod)
+	fmt.Println(compMinNoticePeriod)
+	if err != nil {
+		panic("error while conversion min notice  period data from hr posting")
+	}
+	compMaxNoticePeriod, err := strconv.Atoi(jobDetails.MaxNoticePeriod)
+	fmt.Println(compMaxNoticePeriod)
+	if err != nil {
+		panic("error while conversion max notice period data from hr posting")
+	}
+	fmt.Println(validateApplication.Jobs.NoticePeriod)
+	applicantNoticePeriod, err := strconv.Atoi(validateApplication.Jobs.NoticePeriod)
+	fmt.Println(applicantNoticePeriod)
+	if err != nil {
+		panic("error while conversion notice period from applicant")
+	}
+
+	if (applicantNoticePeriod < compMinNoticePeriod) || (applicantNoticePeriod > compMaxNoticePeriod) {
+		fmt.Println("failed in notice")
+
+		return false, models.JobApplicantResponse{}
+	}
+	if validateApplication.Jobs.JobDescription != jobDetails.JobDescription {
+		fmt.Println("failed in descrpitoim")
+
+		return false, models.JobApplicantResponse{}
+	}
 
 	count := 0
-
-	for _, v1 := range v.Jobs.JobLocation {
+	fmt.Println(validateApplication.Jobs.JobLocation)
+	for _, v1 := range validateApplication.Jobs.JobLocation {
 		count = 0
-		for _, v2 := range validateApplication.JobDescription {
+		for _, v2 := range jobDetails.JobLocation {
+			fmt.Println(v2.Name)
+			if v1 == v2.ID {
+				count++
+
+			}
+		}
+	}
+	if count == 0 {
+		fmt.Println("failed location")
+		return false, models.JobApplicantResponse{}
+	}
+
+	count = 0
+	for _, v1 := range validateApplication.Jobs.JobType {
+		count = 0
+		for _, v2 := range jobDetails.JobType {
 			if v1 == v2.ID {
 				count++
 			}
-		}
 
+		}
 	}
 	if count == 0 {
-		return false, models.JobApplicant{}
+		fmt.Println("failed Jobtype")
+		return false, models.JobApplicantResponse{}
 	}
+
+	count = 0
+	for _, v1 := range validateApplication.Jobs.Qualification {
+		count = 0
+		for _, v2 := range jobDetails.Qualification {
+			if v1 == v2.ID {
+				count++
+			}
+
+		}
+	}
+	if count == 0 {
+		fmt.Println("failed qualification")
+		return false, models.JobApplicantResponse{}
+	}
+
+	count = 0
+	for _, v1 := range validateApplication.Jobs.Shift {
+		count = 0
+		for _, v2 := range jobDetails.Shift {
+			if v1 == v2.ID {
+				count++
+			}
+
+		}
+	}
+	if count == 0 {
+		fmt.Println("failed shift")
+		return false, models.JobApplicantResponse{}
+	}
+
+	count = 0
+	for _, v1 := range validateApplication.Jobs.Technology {
+		count = 0
+		for _, v2 := range jobDetails.Technology {
+			if v1 == v2.ID {
+				count++
+			}
+
+		}
+	}
+	if count == 0 {
+		fmt.Println("failed technology")
+		return false, models.JobApplicantResponse{}
+	}
+	count = 0
+	for _, v1 := range validateApplication.Jobs.WorkMode {
+		count = 0
+		for _, v2 := range jobDetails.WorkMode {
+			if v1 == v2.ID {
+				count++
+			}
+
+		}
+	}
+	if count == 0 {
+		fmt.Println("failed workmode")
+		return false, models.JobApplicantResponse{}
+	}
+
+	return true, validateApplication
 }
+
+// if (validateApplication == models.JobApplicantResponse{}) {
+// 	log.Error().Err(errors.New("no candidates meet requirments"))
+// 	return false, models.JobApplicantResponse{}
+// }
