@@ -111,16 +111,16 @@ func (s *Service) ProcessJobApplication(ctx context.Context, jobData []models.Jo
 		return nil, errors.New("failed to fetch job details from database")
 	}
 
-	ch := make(chan models.JobApplicantResponse)
-	wg := new(sync.WaitGroup)
+	ch := make(chan models.JobApplicantResponse) // make a channel
+	wg := new(sync.WaitGroup)                    // Initialize waitgroup variable
 
 	for _, v := range jobData {
-		wg.Add(1)
-		go func(v models.JobApplicantResponse) {
-			defer wg.Done()
-			b, _ := applicationFilter(v, jobDetails)
-			if b {
-				ch <- v
+		wg.Add(1)                                // increment the waitgroup variable
+		go func(v models.JobApplicantResponse) { // goroutine
+			defer wg.Done() // decrement the waitgroup variable
+
+			if check, _ := applicationFilter(v, jobDetails); check {
+				ch <- v // send data to channel
 			}
 		}(v)
 	}
@@ -135,48 +135,54 @@ func (s *Service) ProcessJobApplication(ctx context.Context, jobData []models.Jo
 }
 
 func applicationFilter(validateApplication models.JobApplicantResponse, jobDetails models.Jobs) (bool, models.JobApplicantResponse) {
-
+	// convert string to integer and store in applicantBudget variable
 	applicantBudget, err := strconv.Atoi(validateApplication.Jobs.Budget)
 	if err != nil {
 		panic("error while conversion budget data from applicants")
 	}
+	// convert string to integer and store in compBudget variable
 	compBudget, err := strconv.Atoi(jobDetails.Budget)
 	if err != nil {
 		panic("error while conversion budget data from posting")
 	}
+	// Check if applicantBudget is greater than compBudget
 	if applicantBudget > compBudget {
 		fmt.Println("failed in budget")
 		return false, models.JobApplicantResponse{}
 
 	}
+	// convert string to integer and store in compMinNoticePeriod variable
 	compMinNoticePeriod, err := strconv.Atoi(jobDetails.MinNoticePeriod)
 	fmt.Println(compMinNoticePeriod)
 	if err != nil {
 		panic("error while conversion min notice  period data from hr posting")
 	}
+	// convert string to integer and store in compMaxNoticePeriod variable
 	compMaxNoticePeriod, err := strconv.Atoi(jobDetails.MaxNoticePeriod)
 	fmt.Println(compMaxNoticePeriod)
 	if err != nil {
 		panic("error while conversion max notice period data from hr posting")
 	}
 	fmt.Println(validateApplication.Jobs.NoticePeriod)
+	// convert string to integer and store in applicantNoticePeriod variable
 	applicantNoticePeriod, err := strconv.Atoi(validateApplication.Jobs.NoticePeriod)
 	fmt.Println(applicantNoticePeriod)
 	if err != nil {
 		panic("error while conversion notice period from applicant")
 	}
-
+	// Check if applicantNoticePeriod is less than compMinNoticePeriod and greater than compMaxNoticePeriod
 	if (applicantNoticePeriod < compMinNoticePeriod) || (applicantNoticePeriod > compMaxNoticePeriod) {
 		fmt.Println("failed in notice")
 
 		return false, models.JobApplicantResponse{}
 	}
+	// Check if validateApplication.Jobs.JobDescription is equal to jobDetails.JobDescription
 	if validateApplication.Jobs.JobDescription != jobDetails.JobDescription {
 		fmt.Println("failed in descrpitoim")
 
 		return false, models.JobApplicantResponse{}
 	}
-
+	// headCounter := 0
 	count := 0
 	fmt.Println(validateApplication.Jobs.JobLocation)
 	for _, v1 := range validateApplication.Jobs.JobLocation {
@@ -185,7 +191,7 @@ func applicationFilter(validateApplication models.JobApplicantResponse, jobDetai
 			fmt.Println(v2.Name)
 			if v1 == v2.ID {
 				count++
-
+				// headCounter++
 			}
 		}
 	}
@@ -200,6 +206,7 @@ func applicationFilter(validateApplication models.JobApplicantResponse, jobDetai
 		for _, v2 := range jobDetails.JobType {
 			if v1 == v2.ID {
 				count++
+				// headCounter++
 			}
 
 		}
@@ -215,6 +222,7 @@ func applicationFilter(validateApplication models.JobApplicantResponse, jobDetai
 		for _, v2 := range jobDetails.Qualification {
 			if v1 == v2.ID {
 				count++
+				// headCounter++
 			}
 
 		}
@@ -230,6 +238,7 @@ func applicationFilter(validateApplication models.JobApplicantResponse, jobDetai
 		for _, v2 := range jobDetails.Shift {
 			if v1 == v2.ID {
 				count++
+				// headCounter++
 			}
 
 		}
@@ -245,6 +254,7 @@ func applicationFilter(validateApplication models.JobApplicantResponse, jobDetai
 		for _, v2 := range jobDetails.Technology {
 			if v1 == v2.ID {
 				count++
+				// headCounter++
 			}
 
 		}
@@ -259,6 +269,7 @@ func applicationFilter(validateApplication models.JobApplicantResponse, jobDetai
 		for _, v2 := range jobDetails.WorkMode {
 			if v1 == v2.ID {
 				count++
+				// headCounter++
 			}
 
 		}

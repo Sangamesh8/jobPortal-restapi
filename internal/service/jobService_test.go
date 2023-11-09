@@ -114,25 +114,25 @@ func TestService_AddJobDetails(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				jobData: models.Jobs{
-					Name:  "Go Developer",
-					Salary: "500000",
-					CompanyID:    1,
+					Name:      "Go Developer",
+					Salary:    "500000",
+					CompanyID: 1,
 				},
 				CompanyID: 1,
 			},
 			want: models.Jobs{
-				Name:  "Go Developer",
-				Salary: "500000",
-				CompanyID:    1,
+				Name:      "Go Developer",
+				Salary:    "500000",
+				CompanyID: 1,
 			},
 
 			wantErr: false,
 
 			mockRepoResponse: func() (models.Jobs, error) {
 				return models.Jobs{
-					Name:  "Go Developerr",
-					Salary: "500000",
-					CompanyID:    1,
+					Name:      "Go Developerr",
+					Salary:    "500000",
+					CompanyID: 1,
 				}, nil
 			},
 		},
@@ -303,3 +303,4 @@ func TestService_ViewAllJobs(t *testing.T) {
 		})
 	}
 }
+

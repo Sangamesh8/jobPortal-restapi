@@ -55,18 +55,33 @@ func (mr *MockJobPortalServiceMockRecorder) AddCompanyDetails(ctx, companyData a
 }
 
 // AddJobDetails mocks base method.
-func (m *MockJobPortalService) AddJobDetails(ctx context.Context, jobData models.Jobs, cid uint64) (models.Jobs, error) {
+func (m *MockJobPortalService) AddJobDetails(ctx context.Context, jobData models.CreateJobs, CompanyID uint64) (models.ResponseForJobs, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddJobDetails", ctx, jobData, cid)
-	ret0, _ := ret[0].(models.Jobs)
+	ret := m.ctrl.Call(m, "AddJobDetails", ctx, jobData, CompanyID)
+	ret0, _ := ret[0].(models.ResponseForJobs)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AddJobDetails indicates an expected call of AddJobDetails.
-func (mr *MockJobPortalServiceMockRecorder) AddJobDetails(ctx, jobData, cid any) *gomock.Call {
+func (mr *MockJobPortalServiceMockRecorder) AddJobDetails(ctx, jobData, CompanyID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddJobDetails", reflect.TypeOf((*MockJobPortalService)(nil).AddJobDetails), ctx, jobData, cid)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddJobDetails", reflect.TypeOf((*MockJobPortalService)(nil).AddJobDetails), ctx, jobData, CompanyID)
+}
+
+// ProcessJobApplication mocks base method.
+func (m *MockJobPortalService) ProcessJobApplication(ctx context.Context, jobData []models.JobApplicantResponse) ([]models.JobApplicantResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProcessJobApplication", ctx, jobData)
+	ret0, _ := ret[0].([]models.JobApplicantResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProcessJobApplication indicates an expected call of ProcessJobApplication.
+func (mr *MockJobPortalServiceMockRecorder) ProcessJobApplication(ctx, jobData any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessJobApplication", reflect.TypeOf((*MockJobPortalService)(nil).ProcessJobApplication), ctx, jobData)
 }
 
 // UserSignIn mocks base method.
