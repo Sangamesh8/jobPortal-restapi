@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"job-portal-api/internal/auth"
 	"job-portal-api/internal/middleware"
 	"job-portal-api/internal/models"
@@ -361,55 +363,93 @@ func TestHandler_ProcessJobApplication(t *testing.T) {
 		expectedStatusCode int
 		expectedResponse   string
 	}{
-		// {
-		// 	name: "missing trace id",
-		// 	setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
-		// 		rr := httptest.NewRecorder()
-		// 		c, _ := gin.CreateTestContext(rr)
-		// 		httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
-		// 		c.Request = httpRequest
-
-		// 		return c, rr, nil
-		// 	},
-		// 	expectedStatusCode: http.StatusInternalServerError,
-		// 	expectedResponse:   `{"error":"Internal Server Error"}`,
-		// },
-		// {
-		// 	name: "missing jwt claims",
-		// 	setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
-		// 		rr := httptest.NewRecorder()
-		// 		c, _ := gin.CreateTestContext(rr)
-		// 		httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
-		// 		ctx := httpRequest.Context()
-		// 		ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
-		// 		httpRequest = httpRequest.WithContext(ctx)
-		// 		c.Request = httpRequest
-
-		// 		return c, rr, nil
-		// 	},
-		// 	expectedStatusCode: http.StatusUnauthorized,
-		// 	expectedResponse:   `{"error":"Unauthorized"}`,
-		// },
 		{
-			name: "Failed while create a job",
+			name: "missing trace id",
 			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
 				rr := httptest.NewRecorder()
 				c, _ := gin.CreateTestContext(rr)
-				httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com:8080", strings.NewReader(`{"name":"Go developer","budget":"500000","description":"gRPC"}`))
+				httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
+				c.Request = httpRequest
+
+				return c, rr, nil
+			},
+			expectedStatusCode: http.StatusInternalServerError,
+			expectedResponse:   `{"error":"Internal Server Error"}`,
+		},
+		{
+			name: "missing jwt claims",
+			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
+				rr := httptest.NewRecorder()
+				c, _ := gin.CreateTestContext(rr)
+				httpRequest, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
+				ctx := httpRequest.Context()
+				ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
+				httpRequest = httpRequest.WithContext(ctx)
+				c.Request = httpRequest
+
+				return c, rr, nil
+			},
+			expectedStatusCode: http.StatusUnauthorized,
+			expectedResponse:   `{"error":"Unauthorized"}`,
+		},
+		{
+			name: "invalid request body",
+			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
+				rr := httptest.NewRecorder()
+				c, _ := gin.CreateTestContext(rr)
+				httpRequest, _ := http.NewRequest(http.MethodPost, "http://test.com:8080", bytes.NewBufferString(`{"invalid`))
 				ctx := httpRequest.Context()
 				ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
 				ctx = context.WithValue(ctx, auth.Key, jwt.RegisteredClaims{})
 				httpRequest = httpRequest.WithContext(ctx)
 				c.Request = httpRequest
-				// c.Params = append(c.Params, gin.Param{Key: "id", Value: "1"})
+				c.Params = append(c.Params, gin.Param{Key: "companyID", Value: "123"})
+
+				return c, rr, nil
+			},
+			expectedStatusCode: http.StatusBadRequest,
+			expectedResponse:   `{"error":"please provide details for job selection"}`,
+		},
+		{
+			name: "error while processing applicants",
+			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
+				rr := httptest.NewRecorder()
+				c, _ := gin.CreateTestContext(rr)
+				httpRequest, _ := http.NewRequest(http.MethodPost, "http://test.com:8080", bytes.NewBufferString(`[]`))
+				ctx := httpRequest.Context()
+				ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
+				ctx = context.WithValue(ctx, auth.Key, jwt.RegisteredClaims{})
+				httpRequest = httpRequest.WithContext(ctx)
+				c.Request = httpRequest
+
 				mc := gomock.NewController(t)
 				ms := service.NewMockJobPortalService(mc)
-				// ms.EXPECT().ProcessJobApplication(gomock.Any(), gomock.Any()).Return(models.Jobs{}, nil).AnyTimes()
+				ms.EXPECT().ProcessJobApplication(ctx, gomock.Any()).Return(nil, errors.New("test error")).AnyTimes()
 
 				return c, rr, ms
 			},
-			expectedStatusCode: http.StatusBadRequest,
-			expectedResponse:   `{}`,
+			expectedStatusCode: http.StatusInternalServerError,
+			expectedResponse:   `{"error":"Application procseeing failed"}`,
+		},
+		{
+			name: "success",
+			setup: func() (*gin.Context, *httptest.ResponseRecorder, service.JobPortalService) {
+				rr := httptest.NewRecorder()
+				c, _ := gin.CreateTestContext(rr)
+				httpRequest, _ := http.NewRequest(http.MethodPost, "http://test.com:8080", bytes.NewBufferString(`[]`))
+				ctx := httpRequest.Context()
+				ctx = context.WithValue(ctx, middleware.TraceIDKey, "123")
+				ctx = context.WithValue(ctx, auth.Key, jwt.RegisteredClaims{})
+				httpRequest = httpRequest.WithContext(ctx)
+				c.Request = httpRequest
+
+				mc := gomock.NewController(t)
+				ms := service.NewMockJobPortalService(mc)
+				ms.EXPECT().ProcessJobApplication(ctx, gomock.Any()).Return([]models.JobApplicantResponse{}, nil).AnyTimes()
+				return c, rr, ms
+			},
+			expectedStatusCode: http.StatusOK,
+			expectedResponse:   `[]`,
 		},
 	}
 	for _, tt := range tests {

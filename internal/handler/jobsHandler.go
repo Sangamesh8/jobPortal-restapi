@@ -209,9 +209,7 @@ func (h *Handler) ProcessJobApplication(c *gin.Context) {
 	jobData, err := h.service.ProcessJobApplication(ctx, jobDetails)
 	if err != nil {
 		log.Error().Err(err).Str("trace id", traceid)
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Application procseeing failed"})
 		return
 	}
 

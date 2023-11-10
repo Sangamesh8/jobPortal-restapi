@@ -26,7 +26,7 @@ type UserRepo interface {
 	FindJobByCompanyID(ctx context.Context, CompanyID uint64) ([]models.Jobs, error)
 	FindAllJobs(ctx context.Context) ([]models.Jobs, error)
 	ViewJobDetailsByJobId(ctx context.Context, jid uint64) (models.Jobs, error)
-	// ProcessJobApplication(ctx context.Context, jobData []models.JobApplicantResponse) ([]models.JobApplicantResponse, error)
+	//ProcessJobApplication(ctx context.Context, jobData []models.JobApplicantResponse) ([]models.JobApplicantResponse, error)
 	// JobProcessData(id int)(models.Jobs,error)
 }
 

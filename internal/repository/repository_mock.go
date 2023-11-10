@@ -27,6 +27,7 @@ type MockUserRepoMockRecorder struct {
 	mock *MockUserRepo
 }
 
+// NewMockUserRepo creates a new mock instance.
 func NewMockUserRepo(ctrl *gomock.Controller) *MockUserRepo {
 	mock := &MockUserRepo{ctrl: ctrl}
 	mock.recorder = &MockUserRepoMockRecorder{mock}
@@ -69,10 +70,10 @@ func (mr *MockUserRepoMockRecorder) CreateCompany(ctx, companyData any) *gomock.
 }
 
 // CreateJob mocks base method.
-func (m *MockUserRepo) CreateJob(ctx context.Context, jobData models.Jobs) (models.Jobs, error) {
+func (m *MockUserRepo) CreateJob(ctx context.Context, jobData models.Jobs) (models.ResponseForJobs, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateJob", ctx, jobData)
-	ret0, _ := ret[0].(models.Jobs)
+	ret0, _ := ret[0].(models.ResponseForJobs)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

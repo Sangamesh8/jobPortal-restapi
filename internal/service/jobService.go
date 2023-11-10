@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"job-portal-api/internal/models"
 	"strconv"
@@ -104,12 +103,6 @@ func (s *Service) ViewJobByCompanyID(ctx context.Context, cid uint64) ([]models.
 
 func (s *Service) ProcessJobApplication(ctx context.Context, jobData []models.JobApplicantResponse) ([]models.JobApplicantResponse, error) {
 	var ProccessedJobData []models.JobApplicantResponse
-	jobDetails, err := s.UserRepo.ViewJobDetailsByJobId(ctx, 15)
-	fmt.Println("hello", jobDetails.JobLocation)
-
-	if err != nil {
-		return nil, errors.New("failed to fetch job details from database")
-	}
 
 	ch := make(chan models.JobApplicantResponse) // make a channel
 	wg := new(sync.WaitGroup)                    // Initialize waitgroup variable
@@ -118,7 +111,10 @@ func (s *Service) ProcessJobApplication(ctx context.Context, jobData []models.Jo
 		wg.Add(1)                                // increment the waitgroup variable
 		go func(v models.JobApplicantResponse) { // goroutine
 			defer wg.Done() // decrement the waitgroup variable
-
+			jobDetails, err := s.UserRepo.ViewJobDetailsByJobId(ctx, uint64(v.JobID))
+			if err != nil {
+				return
+			}
 			if check, _ := applicationFilter(v, jobDetails); check {
 				ch <- v // send data to channel
 			}
